@@ -23,12 +23,16 @@ module ExpectNoCorrectionsPolyfill
   end
 end
 
+require 'pry'
+
 RSpec.configure do |config|
+  # binding.pry
+
   config.include ExpectNoCorrectionsPolyfill
 end
 
-RSpec.describe(RuboCop::Cop::Rails::Timecop, :config) do
-  subject(:cop) { described_class.new(config) }
+RSpec.describe RuboCop::Cop::Rails::Timecop do
+  subject(:cop) { described_class.new }
 
   describe 'Timecop.freeze' do
     context 'without a block' do
