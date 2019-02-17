@@ -33,76 +33,66 @@ RSpec.describe(RuboCop::Cop::Rails::Timecop, :config) do
   describe 'Timecop.freeze' do
     context 'without a block' do
       context 'without arguments' do
-        it 'adds an offense' do
+        it 'adds an offense, and corrects to `freeze_time`' do
           expect_offense(<<-RUBY.strip_indent)
             Timecop.freeze
             ^^^^^^^^^^^^^^ Use `freeze_time` instead of `Timecop.freeze`
           RUBY
-        end
 
-        it 'autocorrects to `freeze_time`' do
-          expect(autocorrect_source('Timecop.freeze')).to(eq('freeze_time'))
+          expect_correction(<<-RUBY.strip_indent)
+            freeze_time
+          RUBY
         end
 
         context 'spread over multiple lines' do
-          it 'adds an offense' do
+          it 'adds an offense, and corrects to `freeze_time`' do
             expect_offense(<<-RUBY.strip_indent)
               Timecop
               ^^^^^^^ Use `freeze_time` instead of `Timecop.freeze`
                 .freeze
             RUBY
-          end
 
-          it 'autocorrects to `freeze_time`' do
-            expect(autocorrect_source("Timecop\n  .freeze"))
-              .to(eq('freeze_time'))
+            expect_correction(<<-RUBY.strip_indent)
+              freeze_time
+            RUBY
           end
         end
       end
 
       context 'with arguments' do
-        it 'adds an offense' do
+        it 'adds an offense, and does not correct' do
           expect_offense(<<-RUBY.strip_indent)
             Timecop.freeze(123)
             ^^^^^^^^^^^^^^^^^^^ Use `travel` or `travel_to` instead of `Timecop.freeze`
           RUBY
-        end
 
-        it 'does not autocorrect' do
-          source = 'Timecop.freeze(123)'
-
-          expect(autocorrect_source(source)).to(eq(source))
+          expect_no_corrections
         end
       end
     end
 
     context 'with a block' do
       context 'without arguments' do
-        it 'adds an offense' do
+        it 'adds an offense, and autocorrects to `freeze_time`' do
           expect_offense(<<-RUBY.strip_indent)
             Timecop.freeze { }
             ^^^^^^^^^^^^^^ Use `freeze_time` instead of `Timecop.freeze`
           RUBY
-        end
 
-        it 'autocorrects to `freeze_time`' do
-          expect(autocorrect_source('Timecop.freeze { }'))
-            .to(eq('freeze_time { }'))
+          expect_correction(<<-RUBY.strip_indent)
+            freeze_time { }
+          RUBY
         end
       end
 
       context 'with arguments' do
-        it 'adds an offense' do
+        it 'adds an offense, and does not autocorrect' do
           expect_offense(<<-RUBY.strip_indent)
             Timecop.freeze(123) { }
             ^^^^^^^^^^^^^^^^^^^ Use `travel` or `travel_to` instead of `Timecop.freeze`
           RUBY
-        end
 
-        it 'does not autocorrect' do
-          source = 'Timecop.freeze(123) { }'
-
-          expect(autocorrect_source(source)).to(eq(source))
+          expect_no_corrections
         end
       end
     end
@@ -110,22 +100,54 @@ RSpec.describe(RuboCop::Cop::Rails::Timecop, :config) do
 
   describe 'Timecop.return' do
     context 'without a block' do
-      it 'adds an offense' do
-        expect_offense(<<-RUBY.strip_indent)
-          Timecop.return
-          ^^^^^^^^^^^^^^ Use `travel_back` instead of `Timecop.return`
-        RUBY
-      end
-
       context 'in Rails < 6.0', :rails5 do
-        it 'autocorrects to `travel_back`' do
-          expect(autocorrect_source('Timecop.return')).to(eq('travel_back'))
+        it 'adds an offense, and corrects to `travel_back`' do
+          expect_offense(<<-RUBY.strip_indent)
+            Timecop.return
+            ^^^^^^^^^^^^^^ Use `travel_back` instead of `Timecop.return`
+          RUBY
+
+          expect_correction(<<-RUBY.strip_indent)
+            travel_back
+          RUBY
         end
 
         context 'inside a block' do
-          it 'autocorrects to `travel_back`' do
-            expect(autocorrect_source('foo { Timecop.return }'))
-              .to(eq('foo { travel_back }'))
+          it 'adds an offense, and corrects to `travel_back`' do
+            expect_offense(<<-RUBY.strip_indent)
+              foo { Timecop.return }
+                    ^^^^^^^^^^^^^^ Use `travel_back` instead of `Timecop.return`
+            RUBY
+
+            expect_correction(<<-RUBY.strip_indent)
+              foo { travel_back }
+            RUBY
+          end
+        end
+      end
+
+      context 'in Rails >= 6.0', :rails6 do
+        it 'adds an offense, and corrects to `travel_back`' do
+          expect_offense(<<-RUBY.strip_indent)
+            Timecop.return
+            ^^^^^^^^^^^^^^ Use `travel_back` instead of `Timecop.return`
+          RUBY
+
+          expect_correction(<<-RUBY.strip_indent)
+            travel_back
+          RUBY
+        end
+
+        context 'inside a block' do
+          it 'adds an offense, and corrects to `travel_back`' do
+            expect_offense(<<-RUBY.strip_indent)
+              foo { Timecop.return }
+                    ^^^^^^^^^^^^^^ Use `travel_back` instead of `Timecop.return`
+            RUBY
+
+            expect_correction(<<-RUBY.strip_indent)
+              foo { travel_back }
+            RUBY
           end
         end
       end
@@ -145,60 +167,69 @@ RSpec.describe(RuboCop::Cop::Rails::Timecop, :config) do
     end
 
     context 'with a block' do
-      it 'adds an offense' do
+      it 'adds an offense, and does not correct' do
         expect_offense(<<-RUBY.strip_indent)
           Timecop.return { }
           ^^^^^^^^^^^^^^ Use `travel_back` instead of `Timecop.return`
         RUBY
-      end
 
-      it 'does not autocorrect' do
-        expect(autocorrect_source('Timecop.return { }'))
-          .to(eq('Timecop.return { }'))
+        expect_no_corrections
       end
 
       context 'inside a block' do
-        it 'does not autocorrect' do
-          expect(autocorrect_source('foo { Timecop.return { } }'))
-            .to(eq('foo { Timecop.return { } }'))
+        it 'adds an offense, and does not correct' do
+          expect_offense(<<-RUBY.strip_indent)
+            foo { Timecop.return { } }
+                  ^^^^^^^^^^^^^^ Use `travel_back` instead of `Timecop.return`
+          RUBY
+
+          expect_no_corrections
         end
       end
     end
   end
 
   describe 'Timecop.travel' do
-    it 'adds an offense' do
+    it 'adds an offense, and does not correct' do
       expect_offense(<<-RUBY.strip_indent)
         Timecop.travel(123) { }
         ^^^^^^^^^^^^^^^^^^^ Use `travel` or `travel_to` instead of `Timecop.travel`. If you need time to keep flowing, simulate it by travelling again.
       RUBY
+
+      expect_no_corrections
     end
   end
 
   describe 'Timecop.*' do
-    it 'adds an offense' do
+    it 'adds an offense, and does not correct' do
       expect_offense(<<-RUBY.strip_indent)
         Timecop.foo
         ^^^^^^^ Use `ActiveSupport::Testing::TimeHelpers` instead of `Timecop`
       RUBY
+
+      expect_no_corrections
     end
   end
 
   describe 'Timecop' do
-    it 'adds an offense' do
+    it 'adds an offense, and does not correct' do
       expect_offense(<<-RUBY.strip_indent)
         Timecop.foo
         ^^^^^^^ Use `ActiveSupport::Testing::TimeHelpers` instead of `Timecop`
       RUBY
+
+      expect_no_corrections
     end
   end
 
   describe '::Timecop' do
-    it 'adds an offense' do
+    it 'adds an offense, and does not correct' do
       expect_offense(<<-RUBY.strip_indent)
         ::Timecop.foo
         ^^^^^^^^^ Use `ActiveSupport::Testing::TimeHelpers` instead of `Timecop`
       RUBY
+
+      expect_no_corrections
     end
   end
 end
