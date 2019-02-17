@@ -97,7 +97,7 @@ module RuboCop
         FREEZE_TIME = 'freeze_time'.freeze
         TRAVEL_BACK = 'travel_back'.freeze
 
-        TIMECOP_PATTERN_STRING = '(const {nil? (:cbase)} :Timecop)'.freeze
+        TIMECOP_PATTERN_STRING = '(const {nil? cbase} :Timecop)'.freeze
 
         def_node_matcher :timecop, TIMECOP_PATTERN_STRING
 
