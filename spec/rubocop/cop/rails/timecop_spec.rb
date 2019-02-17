@@ -157,14 +157,14 @@ RSpec.describe RuboCop::Cop::Rails::Timecop do
       end
 
       # context 'in Rails > 6.0', :rails6 do
-      #   it 'autocorrects to `unfreeze`' do
-      #     expect(autocorrect_source('Timecop.return')).to(eq('unfreeze'))
+      #   it 'autocorrects to `unfreeze_time`' do
+      #     expect(autocorrect_source('Timecop.return')).to(eq('unfreeze_time'))
       #   end
 
       #   context 'inside a block' do
-      #     it 'autocorrects to `unfreeze`' do
+      #     it 'autocorrects to `unfreeze_time`' do
       #       expect(autocorrect_source('foo { Timecop.return }'))
-      #         .to(eq('foo { unfreeze }'))
+      #         .to(eq('foo { unfreeze_time }'))
       #     end
       #   end
       # end
