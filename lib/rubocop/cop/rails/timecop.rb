@@ -3,24 +3,105 @@
 module RuboCop
   module Cop
     module Rails
+      # This cop disallows all usage of `Timecop`, in favour of
+      # `ActiveSupport::Testing::TimeHelpers`.
+      #
+      # ## Migration
+      # `Timecop.freeze` should be replaced with `freeze_time` when used
+      # without arguments. Where a `duration` has been passed to `freeze`, it
+      # should be replaced with `travel`. Likewise, where a `time` has been
+      # passed to `freeze`, it should be replaced with `travel_to`.
+      #
+      # `Timecop.return` should be replaced with `travel_back`, when used
+      # without a block. `travel_back` does not accept a block, so where
+      # `return` is used with a block, it should be replaced by explicitly
+      # calling `freeze_time` with a block, and passing the `time` to
+      # temporarily return to.
+      #
+      # `Timecop.scale` should be replaced by explicitly calling `travel` or
+      # `travel_to` with the expected `durations` or `times`, respectively,
+      # rather than relying on allowing time to continue to flow.
+      #
+      # `Timecop.travel` should be replaced by `travel` or `travel_to` when
+      # passed a `duration` or `time`, respectively. As with `Timecop.scale`,
+      # rather than relying on time continuing to flow, it should be travelled
+      # to explicitly.
+      #
+      # All other usages of `Timecop` are similarly disallowed.
+      #
+      # ## Caveats
+      #
+      # Note that if using RSpec, `TimeHelpers` are not included by default,
+      # and must be manually included by updating `spec_helper` (and
+      # `rails_helper` too, if it exists):
+      #
+      # ```ruby
+      # RSpec.configure do |config|
+      #   config.include ActiveSupport::Testing::TimeHelpers
+      # end
+      # ```
+      #
+      # @example
+      #   # bad
+      #   Timecop
+      #
+      #   # bad
+      #   Timecop.freeze
+      #   Timecop.freeze(duration)
+      #   Timecop.freeze(time)
+      #
+      #   # good
+      #   freeze_time
+      #   travel(duration)
+      #   travel_to(time)
+      #
+      #   # bad
+      #   Timecop.freeze { assert true }
+      #   Timecop.freeze(duration) { assert true }
+      #   Timecop.freeze(time) { assert true }
+      #
+      #   # good
+      #   freeze_time { assert true }
+      #   travel(duration) { assert true }
+      #   travel_to(time) { assert true }
+      #
+      #   # bad
+      #   Timecop.travel(duration)
+      #   Timecop.travel(time)
+      #
+      #   # good
+      #   travel(duration)
+      #   travel_to(time)
+      #
+      #   # bad
+      #   Timecop.return
+      #   Timecop.return { assert true }
+      #
+      #   # good
+      #   travel_back
+      #   travel_to(time) { assert true }
       class Timecop < Cop
-        FREEZE_MESSAGE = 'Use `freeze_time` instead of `Timecop.freeze`'
-        FREEZE_WITH_ARGUMENTS_MESSAGE = 'Use `travel` or `travel_to` instead of `Timecop.freeze`'
-        RETURN_MESSAGE = 'Use `travel_back` instead of `Timecop.return`'
-        TRAVEL_MESSAGE = 'Use `travel` or `travel_to` instead of `Timecop.travel`. If you need time to keep flowing, ' \
-          'simulate it by travelling again.'
-        MSG = 'Use `ActiveSupport::Testing::TimeHelpers` instead of `Timecop`'
+        FREEZE_MESSAGE =
+          'Use `freeze_time` instead of `Timecop.freeze`'.freeze
+        FREEZE_WITH_ARGUMENTS_MESSAGE =
+          'Use `travel` or `travel_to` instead of `Timecop.freeze`'.freeze
+        RETURN_MESSAGE =
+          'Use `travel_back` instead of `Timecop.return`'.freeze
+        TRAVEL_MESSAGE =
+          'Use `travel` or `travel_to` instead of `Timecop.travel`. If you ' \
+          'need time to keep flowing, simulate it by travelling again.'.freeze
+        MSG =
+          'Use `ActiveSupport::Testing::TimeHelpers` instead of ' \
+          '`Timecop`'.freeze
 
-        FREEZE_TIME = 'freeze_time'
-        TRAVEL_BACK = 'travel_back'
+        FREEZE_TIME = 'freeze_time'.freeze
+        TRAVEL_BACK = 'travel_back'.freeze
 
-        TIMECOP_PATTERN_STRING = <<~PATTERN
-          (const {nil? (:cbase)} :Timecop)
-        PATTERN
+        TIMECOP_PATTERN_STRING = '(const {nil? (:cbase)} :Timecop)'.freeze
 
         def_node_matcher :timecop, TIMECOP_PATTERN_STRING
 
-        def_node_matcher :timecop_send, <<~PATTERN
+        def_node_matcher :timecop_send, <<-PATTERN.strip_indent
           (send
             #{TIMECOP_PATTERN_STRING} ${:freeze :return :travel}
             $...
@@ -88,12 +169,17 @@ module RuboCop
         end
 
         def autocorrect_return(corrector, node, _arguments)
+          return if was_passed_block?(node)
+
           corrector.replace(receiver_and_message_range(node), TRAVEL_BACK)
         end
 
+        def was_passed_block?(node)
+          node.send_type? && node.parent &&
+            node.parent.block_type? && node.parent.send_node == node
+        end
+
         def receiver_and_message_range(node)
-          # FIXME: There is probably a better way to do this
-          # Just trying to get the range of `Timecop.method_name`, without args, or block, or anything
           node.location.expression.with(end_pos: node.location.selector.end_pos)
         end
       end

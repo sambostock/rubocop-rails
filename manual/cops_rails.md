@@ -2160,6 +2160,70 @@ EnforcedStyle | `flexible` | `strict`, `flexible`
 * [https://github.com/rubocop-hq/rails-style-guide#time](https://github.com/rubocop-hq/rails-style-guide#time)
 * [http://danilenko.org/2012/7/6/rails_timezones](http://danilenko.org/2012/7/6/rails_timezones)
 
+## Rails/Timecop
+
+Enabled by default | Supports autocorrection
+--- | ---
+Enabled | Yes
+
+This cop disallows all usage of `Timecop`, in favour of
+`ActiveSupport::Testing::TimeHelpers`.
+
+FIXME: Add moar
+
+Note that if using RSpec, `TimeHelpers` are not included by default,
+and must be manually included by updating `spec_helper` (and
+`rails_helper` too, if it exists):
+
+```ruby
+RSpec.configure do |config|
+  config.include ActiveSupport::Testing::TimeHelpers
+end
+```
+
+### Examples
+
+```ruby
+# bad
+Timecop
+
+# bad
+Timecop.freeze
+Timecop.freeze(duration)
+Timecop.freeze(time)
+
+# good
+freeze_time
+travel(duration)
+travel_to(time)
+
+# bad
+Timecop.freeze { assert true }
+Timecop.freeze(duration) { assert true }
+Timecop.freeze(time) { assert true }
+
+# good
+freeze_time { assert true }
+travel(duration) { assert true }
+travel_to(time) { assert true }
+
+# bad
+Timecop.travel(duration)
+Timecop.travel(time)
+
+# good
+travel(duration)
+travel_to(time)
+
+# bad
+Timecop.return
+Timecop.return { assert true }
+
+# good
+travel_back
+travel_to(time) { assert true }
+```
+
 ## Rails/UniqBeforePluck
 
 Enabled by default | Supports autocorrection
