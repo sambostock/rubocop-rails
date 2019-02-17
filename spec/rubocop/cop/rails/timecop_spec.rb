@@ -1,5 +1,32 @@
 # frozen_string_literal: true
 
+module ExpectNoCorrectionsPolyfill
+  private
+
+  # yoiked from https://github.com/rubocop-hq/rubocop/pull/6752, following
+  # https://github.com/rubocop-hq/rubocop-rails/pull/38#issuecomment-464438473
+  def expect_no_corrections
+    unless @processed_source
+      raise '`expect_no_correctionss` must follow `expect_offense`'
+    end
+
+    return if cop.corrections.empty?
+
+    # In order to print a nice diff, e.g. what source got corrected to,
+    # we need to run the actual corrections
+
+    corrector =
+      RuboCop::Cop::Corrector.new(@processed_source.buffer, cop.corrections)
+    new_source = corrector.rewrite
+
+    expect(new_source).to eq(@processed_source.buffer.source)
+  end
+end
+
+RSpec.configure do |config|
+  config.include ExpectNoCorrectionsPolyfill
+end
+
 RSpec.describe(RuboCop::Cop::Rails::Timecop, :config) do
   subject(:cop) { described_class.new(config) }
 
