@@ -79,12 +79,12 @@ RSpec.describe RuboCop::Cop::Rails::Timecop do
       context 'without arguments' do
         it 'adds an offense, and autocorrects to `freeze_time`' do
           expect_offense(<<-RUBY.strip_indent)
-            Timecop.freeze { }
+            Timecop.freeze { assert true }
             ^^^^^^^^^^^^^^ Use `freeze_time` instead of `Timecop.freeze`
           RUBY
 
           expect_correction(<<-RUBY.strip_indent)
-            freeze_time { }
+            freeze_time { assert true }
           RUBY
         end
       end
@@ -92,7 +92,7 @@ RSpec.describe RuboCop::Cop::Rails::Timecop do
       context 'with arguments' do
         it 'adds an offense, and does not autocorrect' do
           expect_offense(<<-RUBY.strip_indent)
-            Timecop.freeze(123) { }
+            Timecop.freeze(123) { assert true }
             ^^^^^^^^^^^^^^^^^^^ Use `travel` or `travel_to` instead of `Timecop.freeze`
           RUBY
 
@@ -173,7 +173,7 @@ RSpec.describe RuboCop::Cop::Rails::Timecop do
     context 'with a block' do
       it 'adds an offense, and does not correct' do
         expect_offense(<<-RUBY.strip_indent)
-          Timecop.return { }
+          Timecop.return { assert true }
           ^^^^^^^^^^^^^^ Use `travel_back` instead of `Timecop.return`
         RUBY
 
@@ -183,7 +183,7 @@ RSpec.describe RuboCop::Cop::Rails::Timecop do
       context 'inside a block' do
         it 'adds an offense, and does not correct' do
           expect_offense(<<-RUBY.strip_indent)
-            foo { Timecop.return { } }
+            foo { Timecop.return { assert true } }
                   ^^^^^^^^^^^^^^ Use `travel_back` instead of `Timecop.return`
           RUBY
 
@@ -196,7 +196,7 @@ RSpec.describe RuboCop::Cop::Rails::Timecop do
   describe 'Timecop.travel' do
     it 'adds an offense, and does not correct' do
       expect_offense(<<-RUBY.strip_indent)
-        Timecop.travel(123) { }
+        Timecop.travel(123) { assert true }
         ^^^^^^^^^^^^^^^^^^^ Use `travel` or `travel_to` instead of `Timecop.travel`. If you need time to keep flowing, simulate it by travelling again.
       RUBY
 
