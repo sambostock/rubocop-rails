@@ -232,4 +232,12 @@ RSpec.describe(RuboCop::Cop::Rails::Timecop, :config) do
       expect_no_corrections
     end
   end
+
+  describe 'Foo::Timecop' do
+    it 'adds no offenses' do
+      expect_no_offenses(<<-RUBY.strip_indent)
+        Foo::Timecop
+      RUBY
+    end
+  end
 end
