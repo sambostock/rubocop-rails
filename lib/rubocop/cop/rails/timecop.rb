@@ -32,8 +32,8 @@ module RuboCop
       # ## Caveats
       #
       # Note that if using RSpec, `TimeHelpers` are not included by default,
-      # and must be manually included by updating `spec_helper` (and
-      # `rails_helper` too, if it exists):
+      # and must be manually included by updating `spec_helper` (or
+      # `rails_helper`):
       #
       # ```ruby
       # RSpec.configure do |config|
