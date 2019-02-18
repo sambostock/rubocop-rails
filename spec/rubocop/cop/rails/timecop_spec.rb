@@ -47,20 +47,6 @@ RSpec.describe RuboCop::Cop::Rails::Timecop do
             freeze_time
           RUBY
         end
-
-        context 'spread over multiple lines' do
-          it 'adds an offense, and corrects to `freeze_time`' do
-            expect_offense(<<-RUBY.strip_indent)
-              Timecop
-              ^^^^^^^ Use `freeze_time` instead of `Timecop.freeze`
-                .freeze
-            RUBY
-
-            expect_correction(<<-RUBY.strip_indent)
-              freeze_time
-            RUBY
-          end
-        end
       end
 
       context 'with arguments' do
