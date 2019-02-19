@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+# FIXME: Do not merge until this can be, and is, removed
 module ExpectNoCorrectionsPolyfill
   private
 
