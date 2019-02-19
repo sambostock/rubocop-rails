@@ -30,6 +30,24 @@ RSpec.configure do |config|
   config.include ExpectNoCorrectionsPolyfill
 end
 
+# FIXME: Need more specific tests per Rails version
+# - **4.1** introduces `travel`, `travel_to`, & `travel_back`
+# - **5.2** introduces `freeze_time` alias for `travel_to(Time.now)`
+# - **6.0** _will introduce_ `unfreeze_time` alias for `travel_back`
+
+# Ideally, we would provide the following experience:
+
+# - **Version < 4.1**: No offences or corrections
+# - **4.1 >= Versions < 5.2**: Use only `travel` & `travel_to`
+# - **5.2 >= Versions < 6.0**: Change to include `freeze_time`
+# - **6.0 >= Versions**: Change to include `unfreeze_time`
+
+# With major version restrictions, that means we can only provide the following:
+
+# - **Versions < 5.0**: No offences or corrections
+# - **5.0 >= Versions < 6.0**: Use only `travel` & `travel_to`
+# - **6.0 >= Versions**: Change to include `freeze_time` & `unfreeze_time`
+
 RSpec.describe RuboCop::Cop::Rails::Timecop do
   subject(:cop) { described_class.new }
 
