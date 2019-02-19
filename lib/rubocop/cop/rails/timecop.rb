@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-# FIXME: Do not merge until there is support, or a workaround for, `after_teardown`
+# FIXME: Do not merge until `after_teardown` is handled or worked around
 
 module RuboCop
   module Cop
@@ -83,7 +83,7 @@ module RuboCop
       #   travel_back
       #   travel_to(time) { assert true }
       #
-      # FIXME: Do not merge until there is support, or a workaround for, `after_teardown`
+      # FIXME: Do not merge until `after_teardown` is handled or worked around
       class Timecop < Cop
         FREEZE_MESSAGE =
           'Use `freeze_time` instead of `Timecop.freeze`'.freeze
