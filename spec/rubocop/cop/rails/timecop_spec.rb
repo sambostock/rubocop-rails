@@ -204,7 +204,7 @@ RSpec.describe RuboCop::Cop::Rails::Timecop do
   describe 'Timecop' do
     it 'adds an offense, and does not correct' do
       expect_offense(<<-RUBY.strip_indent)
-        Timecop.foo
+        Timecop
         ^^^^^^^ Use `ActiveSupport::Testing::TimeHelpers` instead of `Timecop`
       RUBY
 
@@ -215,7 +215,7 @@ RSpec.describe RuboCop::Cop::Rails::Timecop do
   describe '::Timecop' do
     it 'adds an offense, and does not correct' do
       expect_offense(<<-RUBY.strip_indent)
-        ::Timecop.foo
+        ::Timecop
         ^^^^^^^^^ Use `ActiveSupport::Testing::TimeHelpers` instead of `Timecop`
       RUBY
 
