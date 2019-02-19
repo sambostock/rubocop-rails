@@ -23,8 +23,6 @@ module ExpectNoCorrectionsPolyfill
   end
 end
 
-require 'pry'
-
 RSpec.configure do |config|
   # binding.pry
 
