@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+# FIXME: Do not merge until there is support, or a workaround for, `after_teardown`
+
 module RuboCop
   module Cop
     module Rails
@@ -80,6 +82,8 @@ module RuboCop
       #   # good
       #   travel_back
       #   travel_to(time) { assert true }
+      #
+      # FIXME: Do not merge until there is support, or a workaround for, `after_teardown`
       class Timecop < Cop
         FREEZE_MESSAGE =
           'Use `freeze_time` instead of `Timecop.freeze`'.freeze
